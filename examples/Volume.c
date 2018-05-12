@@ -37,12 +37,12 @@ void robotMain(void)
     CHiP*   pCHiP = chipInit(NULL);
 
     printf("\tVolume.c - Use chipSet/GetVolume().\n"
-           "\tSet volume level to 1 and read out afterwards.\n");
+           "\tSet volume level to 2 and read out afterwards.\n");
 
     // Connect to first CHiP robot discovered.
     result = chipConnectToRobot(pCHiP, NULL);
 
-    result = chipSetVolume(pCHiP, 1);
+    result = chipSetVolume(pCHiP, 2);
     result = chipGetVolume(pCHiP, &volume);
 
     printf("Volume = %u\n", volume);

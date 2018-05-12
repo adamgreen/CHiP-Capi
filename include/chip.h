@@ -320,6 +320,8 @@ int chipGetDiscoveredRobotCount(CHiP* pCHiP, size_t* pCount);
 int chipGetDiscoveredRobotName(CHiP* pCHiP, size_t robotIndex, const char** ppRobotName);
 int chipStopRobotDiscovery(CHiP* pCHiP);
 
+int chipSetVolume(CHiP* pCHiP, uint8_t volume);
+int chipGetVolume(CHiP* pCHiP, uint8_t* pVolume);
 
 int chipGetDogVersion(CHiP* pCHiP, CHiPDogVersion* pVersion);
 
@@ -347,8 +349,6 @@ int chipFallDown(CHiP* pCHiP, CHiPFallDirection direction);
 int chipGetUp(CHiP* pCHiP, CHiPGetUp getup);
 
 int chipPlaySound(CHiP* pCHiP, const CHiPSound* pSounds, size_t soundCount, uint8_t repeatCount);
-int chipSetVolume(CHiP* pCHiP, uint8_t volume);
-int chipGetVolume(CHiP* pCHiP, uint8_t* pVolume);
 
 int chipReadOdometer(CHiP* pCHiP, float* pDistanceInCm);
 int chipResetOdometer(CHiP* pCHiP);

@@ -30,7 +30,7 @@
 #define CHIP_CMD_GET_RADAR_RESPONSE      0x0C
 #define CHIP_CMD_GET_GESTURE_RADAR_MODE  0x0D
 #define CHIP_CMD_GET_DOG_VERSION         0x14
-#define CHIP_CMD_SET_VOLUME              0x15
+#define CHIP_CMD_SET_VOLUME              0x18
 #define CHIP_CMD_GET_VOLUME              0x16
 #define CHIP_CMD_GET_HARDWARE_INFO       0x19
 #define CHIP_CMD_SHAKE_RESPONSE          0x1A
@@ -473,7 +473,7 @@ int chipSetVolume(CHiP* pCHiP, uint8_t volume)
     uint8_t command[1+1];
 
     assert( pCHiP );
-    assert( volume <= 7 );
+    assert( volume >= 1 && volume <= 11 );
 
     command[0] = CHIP_CMD_SET_VOLUME;
     command[1] = volume;
@@ -496,7 +496,7 @@ int chipGetVolume(CHiP* pCHiP, uint8_t* pVolume)
         return result;
     if (responseLength != sizeof(response) ||
         response[0] != CHIP_CMD_GET_VOLUME ||
-        response[1] > 7)
+        response[1] == 0 || response[1] > 11)
     {
         return CHIP_ERROR_BAD_RESPONSE;
     }
