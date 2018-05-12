@@ -13,8 +13,7 @@
    limitations under the License.
 */
 /* Example used in following API documentation:
-    chipGetSoftwareVersion()
-    chipGetHardwareInfo()
+    chipGetDogVersion()
 */
 #include <stdio.h>
 #include "chip.h"
@@ -31,27 +30,37 @@ int main(int argc, char *argv[])
 
 void robotMain(void)
 {
-    int                 result = -1;
-    CHiPSoftwareVersion softwareVersion;
-    CHiPHardwareInfo    hardwareInfo;
-    CHiP*               pCHiP = chipInit(NULL);
+    int            result = -1;
+    CHiPDogVersion version;
+    CHiP*          pCHiP = chipInit(NULL);
 
-    printf("\tGetSoftwareHardwareVersion.c - Use chipGetSoftwareVersion() & chipGetHardwareInfo() functions.\n");
+    printf("\tGetDogVersion.c - Use chipGetDogVersion() function.\n");
 
     // Connect to first CHiP robot discovered.
     result = chipConnectToRobot(pCHiP, NULL);
 
-    result = chipGetSoftwareVersion(pCHiP, &softwareVersion);
-    result = chipGetHardwareInfo(pCHiP, &hardwareInfo);
+    result = chipGetDogVersion(pCHiP, &version);
 
-    printf("software version: %u-%u-%u.%u\n",
-           softwareVersion.year,
-           softwareVersion.month,
-           softwareVersion.day,
-           softwareVersion.uniqueVersion);
-    printf("hardware info\n");
-    printf("  voice chip version: %u\n", hardwareInfo.voiceChip);
-    printf("    hardware version: %u\n", hardwareInfo.hardware);
+    printf("bodyHardware: %u\n"
+           "headHardware: %u\n"
+           "mechanic: %u\n"
+           "bleSpiFlash: %u\n"
+           "nuvotonSpiFlash: %u\n"
+           "bleBootloader: %u\n"
+           "bleApromFirmware: %u\n"
+           "nuvotonBootloaderFirmware: %u\n"
+           "nuvotonApromFirmware: %u\n"
+           "nuvoton: %u\n",
+           version.bodyHardware,
+           version.headHardware,
+           version.mechanic,
+           version.bleSpiFlash,
+           version.nuvotonSpiFlash,
+           version.bleBootloader,
+           version.bleApromFirmware,
+           version.nuvotonBootloaderFirmware,
+           version.nuvotonApromFirmware,
+           version.nuvoton);
 
     chipUninit(pCHiP);
 }

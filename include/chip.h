@@ -33,8 +33,8 @@
 #define CHIP_ERROR_BAD_RESPONSE  8 // Unexpected response from CHiP.
 
 // Maximum length of CHiP request and response buffer lengths.
-#define CHIP_REQUEST_MAX_LEN     (17 + 1)    // Longest request is CHIP_CMD_PLAY_SOUND.
-#define CHIP_RESPONSE_MAX_LEN    (5 + 1)     // Longest response is CHIP_CMD_REQUEST_CHEST_LED.
+#define CHIP_REQUEST_MAX_LEN    (17 + 1)    // Longest request is CHIP_CMD_PLAY_SOUND.
+#define CHIP_RESPONSE_MAX_LEN   (10 + 1)    // Longest response is CHIP_CMD_GET_DOG_VERSION.
 
 typedef enum CHiPGestureRadarMode
 {
@@ -277,19 +277,19 @@ typedef struct CHiPHeadLEDs
     CHiPHeadLED led4;
 } CHiPHeadLEDs;
 
-typedef struct CHiPSoftwareVersion
+typedef struct CHiPDogVersion
 {
-    uint16_t year;
-    uint8_t  month;
-    uint8_t  day;
-    uint8_t  uniqueVersion;
-} CHiPSoftwareVersion;
-
-typedef struct CHiPHardwareInfo
-{
-    uint8_t voiceChip;
-    uint8_t hardware;
-} CHiPHardwareInfo;
+    uint8_t bodyHardware;
+    uint8_t headHardware;
+    uint8_t mechanic;
+    uint8_t bleSpiFlash;
+    uint8_t nuvotonSpiFlash;
+    uint8_t bleBootloader;
+    uint8_t bleApromFirmware;
+    uint8_t nuvotonBootloaderFirmware;
+    uint8_t nuvotonApromFirmware;
+    uint8_t nuvoton;
+} CHiPDogVersion;
 
 typedef struct CHiPSound
 {
@@ -319,6 +319,12 @@ int chipStartRobotDiscovery(CHiP* pCHiP);
 int chipGetDiscoveredRobotCount(CHiP* pCHiP, size_t* pCount);
 int chipGetDiscoveredRobotName(CHiP* pCHiP, size_t robotIndex, const char** ppRobotName);
 int chipStopRobotDiscovery(CHiP* pCHiP);
+
+
+int chipGetDogVersion(CHiP* pCHiP, CHiPDogVersion* pVersion);
+
+
+
 
 int chipSetGestureRadarMode(CHiP* pCHiP, CHiPGestureRadarMode mode);
 int chipGetGestureRadarMode(CHiP* pCHiP, CHiPGestureRadarMode* pMode);
@@ -361,9 +367,6 @@ int chipGetLatestStatusNotification(CHiP* pCHiP, CHiPStatus* pStatus);
 int chipGetLatestShakeNotification(CHiP* pCHiP);
 int chipGetLatestWeightNotification(CHiP* pCHiP, CHiPWeight* pWeight);
 int chipGetLatestClapNotification(CHiP* pCHiP, CHiPClap* pClap);
-
-int chipGetSoftwareVersion(CHiP* pCHiP, CHiPSoftwareVersion* pSoftware);
-int chipGetHardwareInfo(CHiP* pCHiP, CHiPHardwareInfo* pHardware);
 
 int chipRawSend(CHiP* pCHiP, const uint8_t* pRequest, size_t requestLength);
 int chipRawReceive(CHiP* pCHiP, const uint8_t* pRequest, size_t requestLength,

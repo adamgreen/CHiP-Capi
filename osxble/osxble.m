@@ -27,7 +27,6 @@
 
 
 // Forward Declarations.
-static int parseHexDigit(uint8_t digit);
 static void* robotThread(void* pArg);
 
 
@@ -754,23 +753,10 @@ Error:
     {
         const uint8_t* pResponseBytes = characteristic.value.bytes;
         NSUInteger responseLength = [characteristic.value length];
-        if ((responseLength & 1) != 0)
-        {
-            // Expect the response to be hexadecimal text with two characters per digit.
-            return;
-        }
-
-        // Buffer to hold the actual bytes of the response which are parsed from hex data.
         uint8_t response[CHIP_RESPONSE_MAX_LEN];
-        responseLength /= 2;
         if (responseLength > sizeof(response))
             responseLength = sizeof(response);
-
-        // Convert hexadecimal string into raw byte response.
-        for (int i = 0, j = 0 ; i < responseLength ; i++, j+=2)
-        {
-            response[i] = parseHexDigit(pResponseBytes[j]) << 4 | parseHexDigit(pResponseBytes[j+1]);
-        }
+        memcpy(response, pResponseBytes, responseLength);
 
         if (requestResponse && [requestResponse request][0] == response[0])
         {
@@ -789,24 +775,6 @@ Error:
     {
         NSLog(@"Unexpected characteristic %@", characteristic.UUID);
         NSLog(@"characteristic = %@", characteristic.value.bytes);
-    }
-}
-
-// Convert hexadecimal digit text to value.
-static int parseHexDigit(uint8_t digit)
-{
-    uint8_t ch = tolower(digit);
-    if (ch >= '0' && ch <= '9')
-    {
-        return ch - '0';
-    }
-    else if (ch >= 'a' && ch <= 'f')
-    {
-        return ch - 'a' + 10;
-    }
-    else
-    {
-        return 0;
     }
 }
 

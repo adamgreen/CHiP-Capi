@@ -29,7 +29,7 @@
 #define CHIP_CMD_SET_GESTURE_RADAR_MODE  0x0C
 #define CHIP_CMD_GET_RADAR_RESPONSE      0x0C
 #define CHIP_CMD_GET_GESTURE_RADAR_MODE  0x0D
-#define CHIP_CMD_GET_SOFTWARE_VERSION    0x14
+#define CHIP_CMD_GET_DOG_VERSION         0x14
 #define CHIP_CMD_SET_VOLUME              0x15
 #define CHIP_CMD_GET_VOLUME              0x16
 #define CHIP_CMD_GET_HARDWARE_INFO       0x19
@@ -792,51 +792,34 @@ int chipGetLatestClapNotification(CHiP* pCHiP, CHiPClap* pClap)
     return CHIP_ERROR_NONE;
 }
 
-int chipGetSoftwareVersion(CHiP* pCHiP, CHiPSoftwareVersion* pSoftware)
+int chipGetDogVersion(CHiP* pCHiP, CHiPDogVersion* pVersion)
 {
-    static const uint8_t getSoftwareVersion[1] = { CHIP_CMD_GET_SOFTWARE_VERSION };
-    uint8_t              response[1+4];
+    static const uint8_t getDogVersion[1] = { CHIP_CMD_GET_DOG_VERSION };
+    uint8_t              response[1+10];
     size_t               responseLength;
     int                  result;
 
     assert( pCHiP );
-    assert( pSoftware );
+    assert( pVersion );
 
-    result = chipRawReceive(pCHiP, getSoftwareVersion, sizeof(getSoftwareVersion), response, sizeof(response), &responseLength);
+    result = chipRawReceive(pCHiP, getDogVersion, sizeof(getDogVersion), response, sizeof(response), &responseLength);
     if (result)
         return result;
-    if (responseLength != sizeof(response) || response[0] != CHIP_CMD_GET_SOFTWARE_VERSION)
+    if (responseLength != sizeof(response) || response[0] != CHIP_CMD_GET_DOG_VERSION)
     {
         return CHIP_ERROR_BAD_RESPONSE;
     }
 
-    pSoftware->year = 2000 + response[1];
-    pSoftware->month = response[2];
-    pSoftware->day = response[3];
-    pSoftware->uniqueVersion = response[4];
-    return result;
-}
-
-int chipGetHardwareInfo(CHiP* pCHiP, CHiPHardwareInfo* pHardware)
-{
-    static const uint8_t getHardwareInfo[1] = { CHIP_CMD_GET_HARDWARE_INFO };
-    uint8_t              response[1+2];
-    size_t               responseLength;
-    int                  result;
-
-    assert( pCHiP );
-    assert( pHardware );
-
-    result = chipRawReceive(pCHiP, getHardwareInfo, sizeof(getHardwareInfo), response, sizeof(response), &responseLength);
-    if (result)
-        return result;
-    if (responseLength != sizeof(response) || response[0] != CHIP_CMD_GET_HARDWARE_INFO)
-    {
-        return CHIP_ERROR_BAD_RESPONSE;
-    }
-
-    pHardware->voiceChip = response[1];
-    pHardware->hardware = response[2];
+    pVersion->bodyHardware = response[1];
+    pVersion->headHardware = response[2];
+    pVersion->mechanic = response[3];
+    pVersion->bleSpiFlash = response[4];
+    pVersion->nuvotonSpiFlash = response[5];
+    pVersion->bleBootloader = response[6];
+    pVersion->bleApromFirmware = response[7];
+    pVersion->nuvotonBootloaderFirmware = response[8];
+    pVersion->nuvotonApromFirmware = response[9];
+    pVersion->nuvoton = response[10];
     return result;
 }
 
