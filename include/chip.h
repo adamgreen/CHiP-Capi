@@ -387,6 +387,8 @@ int chipSetSpeed(CHiP* pCHiP, CHiPSpeed speed);
 int chipGetEyeBrightness(CHiP* pCHiP, uint8_t* pBrightness);
 int chipSetEyeBrightness(CHiP* pCHiP, uint8_t brightness);
 
+int chipForceSleep(CHiP* pCHiP);
+
 
 
 

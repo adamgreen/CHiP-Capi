@@ -36,6 +36,8 @@
 #define CHIP_CMD_SET_EYE_BRIGHTNESS      0x48
 #define CHIP_CMD_GET_EYE_BRIGHTNESS      0x49
 #define CHIP_CMD_GET_ALARM_DATE_TIME     0x4A
+#define CHIP_CMD_FORCE_SLEEP             0xFA
+
 
 #define CHIP_CMD_PLAY_SOUND              0x06
 #define CHIP_CMD_SET_POSITION            0x08
@@ -778,6 +780,19 @@ int chipSetEyeBrightness(CHiP* pCHiP, uint8_t brightness)
 
     command[0] = CHIP_CMD_SET_EYE_BRIGHTNESS;
     command[1] = brightness;
+
+    return chipRawSend(pCHiP, command, sizeof(command));
+}
+
+int chipForceSleep(CHiP* pCHiP)
+{
+    uint8_t command[1+2];
+
+    assert( pCHiP );
+
+    command[0] = CHIP_CMD_FORCE_SLEEP;
+    command[1] = 0x12;
+    command[2] = 0x34;
 
     return chipRawSend(pCHiP, command, sizeof(command));
 }
