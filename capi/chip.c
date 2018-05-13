@@ -33,6 +33,8 @@
 #define CHIP_CMD_SET_ALARM_DATE_TIME     0x44
 #define CHIP_CMD_SET_SPEED               0x45
 #define CHIP_CMD_GET_SPEED               0x46
+#define CHIP_CMD_SET_EYE_BRIGHTNESS      0x48
+#define CHIP_CMD_GET_EYE_BRIGHTNESS      0x49
 #define CHIP_CMD_GET_ALARM_DATE_TIME     0x4A
 
 #define CHIP_CMD_PLAY_SOUND              0x06
@@ -740,6 +742,42 @@ int chipSetSpeed(CHiP* pCHiP, CHiPSpeed speed)
 
     command[0] = CHIP_CMD_SET_SPEED;
     command[1] = speed;
+
+    return chipRawSend(pCHiP, command, sizeof(command));
+}
+
+int chipGetEyeBrightness(CHiP* pCHiP, uint8_t* pBrightness)
+{
+    static const uint8_t getBrightness[1] = { CHIP_CMD_GET_EYE_BRIGHTNESS };
+    uint8_t              response[1+1];
+    size_t               responseLength;
+    int                  result;
+
+    assert( pCHiP );
+    assert( pBrightness );
+
+    result = chipRawReceive(pCHiP, getBrightness, sizeof(getBrightness), response, sizeof(response), &responseLength);
+    if (result)
+        return result;
+    if (responseLength != 2 ||
+        response[0] != CHIP_CMD_GET_EYE_BRIGHTNESS)
+    {
+        return CHIP_ERROR_BAD_RESPONSE;
+    }
+
+    *pBrightness = response[1];
+
+    return CHIP_ERROR_NONE;
+}
+
+int chipSetEyeBrightness(CHiP* pCHiP, uint8_t brightness)
+{
+    uint8_t command[1+1];
+
+    assert( pCHiP );
+
+    command[0] = CHIP_CMD_SET_EYE_BRIGHTNESS;
+    command[1] = brightness;
 
     return chipRawSend(pCHiP, command, sizeof(command));
 }

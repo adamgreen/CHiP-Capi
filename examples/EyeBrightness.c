@@ -13,14 +13,13 @@
    limitations under the License.
 */
 /* Example used in following API documentation:
-    chipGetSpeed()
-    chipSetSpeed()
+    chipGetEyeBrightness()
+    chipSetEyeBrightness()
 */
 #include <stdio.h>
+#include <unistd.h>
 #include "chip.h"
 #include "osxble.h"
-
-static void printSpeed(CHiPSpeed speed);
 
 int main(int argc, char *argv[])
 {
@@ -35,39 +34,31 @@ void robotMain(void)
     int     result = -1;
     CHiP*   pCHiP = chipInit(NULL);
 
-    printf("\tSpeed.c - Use chipGetSpeed() and chipSetSpeed() functions to flip the speed setting.\n");
+    printf("\tSpeed.c - Use chipGetEyeBrightness() and chipSetEyeBrightness() functions.\n");
 
     // Connect to first CHiP robot discovered.
     result = chipConnectToRobot(pCHiP, NULL);
 
-    // Read the current speed setting.
-    CHiPSpeed speed;
-    result = chipGetSpeed(pCHiP, &speed);
-    printf("Original speed is ");
-    printSpeed(speed);
-    printf("\n");
+    // Read and display the current eye brightness setting.
+    uint8_t originalBrightness;
+    result = chipGetEyeBrightness(pCHiP, &originalBrightness);
+    printf("Original eye brightness is 0x%02X\n", originalBrightness);
 
-    // Switch the speed.
-    result = chipSetSpeed(pCHiP, speed == CHIP_SPEED_ADULT ? CHIP_SPEED_KID : CHIP_SPEED_ADULT);
+    // Set the current eye brightness to medium.
+    result = chipSetEyeBrightness(pCHiP, 0x80);
+    uint8_t currentBrightness;
+    result = chipGetEyeBrightness(pCHiP, &currentBrightness);
+    printf("Updated eye brightness is 0x%02X - %s\n", currentBrightness, (currentBrightness == 0x80) ? "pass" : "fail");
+    sleep(2);
 
-    // Read the current speed setting.
-    result = chipGetSpeed(pCHiP, &speed);
-    printf("New speed is ");
-    printSpeed(speed);
-    printf("\n");
+    // Set the current eye brightness to default (0x00).
+    result = chipSetEyeBrightness(pCHiP, 0x00);
+    result = chipGetEyeBrightness(pCHiP, &currentBrightness);
+    printf("Default eye brightness is 0x%02X - %s\n", currentBrightness, (currentBrightness == 0x00) ? "pass" : "fail");
+    sleep(2);
+
+    // Set back to original brightness and exit.
+    result = chipSetEyeBrightness(pCHiP, originalBrightness);
 
     chipUninit(pCHiP);
-}
-
-static void printSpeed(CHiPSpeed speed)
-{
-    switch (speed)
-    {
-    case CHIP_SPEED_ADULT:
-        printf("Adult");
-        break;
-    case CHIP_SPEED_KID:
-        printf("Kid");
-        break;
-    }
 }

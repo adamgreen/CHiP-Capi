@@ -101,6 +101,8 @@ typedef struct CHiPAlarmDateTime
 } CHiPAlarmDateTime;
 
 
+
+
 typedef enum CHiPGestureRadarMode
 {
     CHIP_GESTURE_RADAR_DISABLED = 0x00,
@@ -381,6 +383,11 @@ int chipCancelAlarm(CHiP* pCHiP);
 
 int chipGetSpeed(CHiP* pCHiP, CHiPSpeed* pSpeed);
 int chipSetSpeed(CHiP* pCHiP, CHiPSpeed speed);
+
+int chipGetEyeBrightness(CHiP* pCHiP, uint8_t* pBrightness);
+int chipSetEyeBrightness(CHiP* pCHiP, uint8_t brightness);
+
+
 
 
 int chipSetGestureRadarMode(CHiP* pCHiP, CHiPGestureRadarMode mode);
