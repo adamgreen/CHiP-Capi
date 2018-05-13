@@ -16,7 +16,6 @@
     chipGetBatteryLevel()
 */
 #include <stdio.h>
-#include <unistd.h>
 #include "chip.h"
 #include "osxble.h"
 

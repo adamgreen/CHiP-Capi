@@ -73,6 +73,18 @@ typedef struct CHiPBatteryLevel
     CHiPChargerType    chargerType;
 } CHiPBatteryLevel;
 
+typedef struct CHiPCurrentDateTime
+{
+    uint16_t year;
+    uint8_t  month;
+    uint8_t  day;
+    uint8_t  hour;
+    uint8_t  minute;
+    uint8_t  second;
+    uint8_t  dayOfWeek;
+} CHiPCurrentDateTime;
+
+
 typedef enum CHiPGestureRadarMode
 {
     CHIP_GESTURE_RADAR_DISABLED = 0x00,
@@ -343,6 +355,8 @@ int chipGetBatteryLevel(CHiP* pCHiP, CHiPBatteryLevel* pBatteryLevel);
 
 int chipGetDogVersion(CHiP* pCHiP, CHiPDogVersion* pVersion);
 
+int chipGetCurrentDateTime(CHiP* pCHiP, CHiPCurrentDateTime* pDateTime);
+int chipSetCurrentDateTime(CHiP* pCHiP, const CHiPCurrentDateTime* pDateTime);
 
 
 

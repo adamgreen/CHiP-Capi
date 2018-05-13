@@ -27,6 +27,8 @@
 #define CHIP_CMD_GET_VOLUME              0x16
 #define CHIP_CMD_SET_VOLUME              0x18
 #define CHIP_CMD_GET_BATTERY_LEVEL       0x1C
+#define CHIP_CMD_GET_CURRENT_DATE_TIME   0x3A
+#define CHIP_CMD_SET_CURRENT_DATE_TIME   0x43
 
 #define CHIP_CMD_PLAY_SOUND              0x06
 #define CHIP_CMD_SET_POSITION            0x08
@@ -545,7 +547,7 @@ int chipResetOdometer(CHiP* pCHiP)
 
 int chipGetBatteryLevel(CHiP* pCHiP, CHiPBatteryLevel* pBatteryLevel)
 {
-    static const uint8_t getStatus[1] = { CHIP_CMD_GET_BATTERY_LEVEL };
+    static const uint8_t getBatteryLevel[1] = { CHIP_CMD_GET_BATTERY_LEVEL };
     uint8_t              response[1+3];
     size_t               responseLength;
     int                  result;
@@ -553,7 +555,7 @@ int chipGetBatteryLevel(CHiP* pCHiP, CHiPBatteryLevel* pBatteryLevel)
     assert( pCHiP );
     assert( pBatteryLevel );
 
-    result = chipRawReceive(pCHiP, getStatus, sizeof(getStatus), response, sizeof(response), &responseLength);
+    result = chipRawReceive(pCHiP, getBatteryLevel, sizeof(getBatteryLevel), response, sizeof(response), &responseLength);
     if (result)
         return result;
     if (responseLength != 4 ||
@@ -569,6 +571,69 @@ int chipGetBatteryLevel(CHiP* pCHiP, CHiPBatteryLevel* pBatteryLevel)
     pBatteryLevel->chargerType = response[2];
     pBatteryLevel->batteryLevel = (float)(response[3] - 0x7D) / 34.0f;
     return CHIP_ERROR_NONE;
+}
+
+int chipGetCurrentDateTime(CHiP* pCHiP, CHiPCurrentDateTime* pDateTime)
+{
+    static const uint8_t getCurrentDateTime[1] = { CHIP_CMD_GET_CURRENT_DATE_TIME };
+    uint8_t              response[1+8];
+    size_t               responseLength;
+    int                  result;
+
+    assert( pCHiP );
+    assert( pDateTime );
+
+    result = chipRawReceive(pCHiP, getCurrentDateTime, sizeof(getCurrentDateTime), response, sizeof(response), &responseLength);
+    if (result)
+        return result;
+    if (responseLength != 9 ||
+        response[0] != CHIP_CMD_GET_CURRENT_DATE_TIME ||
+        response[3] == 0 || response[3] > 12 || // Month
+        response[4] == 0 || response[4] > 31 || // Day
+        response[5] > 23 ||                     // Hour
+        response[6] > 59 ||                     // Minute
+        response[7] > 59 ||                     // Second
+        response[8] > 7)                        // Day of Week
+    {
+        return CHIP_ERROR_BAD_RESPONSE;
+    }
+
+    // Year is stored in 2 bytes, big endian.
+    pDateTime->year = ((uint16_t)response[1] << 8) | (uint16_t)response[2];
+    pDateTime->month = response[3];
+    pDateTime->day = response[4];
+    pDateTime->hour = response[5];
+    pDateTime->minute = response[6];
+    pDateTime->second = response[7];
+    pDateTime->dayOfWeek = response[8];
+    
+    return CHIP_ERROR_NONE;
+}
+
+int chipSetCurrentDateTime(CHiP* pCHiP, const CHiPCurrentDateTime* pDateTime)
+{
+
+    uint8_t command[1+8];
+
+    assert( pCHiP );
+    assert( pDateTime->month >= 1 && pDateTime->month <= 12 );
+    assert( pDateTime->day >= 1 && pDateTime->day <= 31 );
+    assert( pDateTime->hour < 24 );
+    assert( pDateTime->minute < 60 );
+    assert( pDateTime->second < 60 );
+    assert( pDateTime->dayOfWeek < 7 );
+
+    command[0] = CHIP_CMD_SET_CURRENT_DATE_TIME;
+    command[1] = (pDateTime->year >> 8) & 0xFF;
+    command[2] = pDateTime->year & 0xFF;
+    command[3] = pDateTime->month;
+    command[4] = pDateTime->day;
+    command[5] = pDateTime->hour;
+    command[6] = pDateTime->minute;
+    command[7] = pDateTime->second;
+    command[8] = pDateTime->dayOfWeek;
+
+    return chipRawSend(pCHiP, command, sizeof(command));
 }
 
 int chipGetWeight(CHiP* pCHiP, CHiPWeight* pWeight)
