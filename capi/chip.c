@@ -23,15 +23,17 @@
 // CHiP Protocol Commands.
 // These command codes are placed in the first byte of requests sent to the CHiP and responses sent back from the CHiP.
 // See https://github.com/WowWeeLabs/CHiP-BLE-Protocol/blob/master/CHiP-Protocol.md for more information.
+#define CHIP_CMD_GET_DOG_VERSION         0x14
+#define CHIP_CMD_GET_VOLUME              0x16
+#define CHIP_CMD_SET_VOLUME              0x18
+#define CHIP_CMD_GET_BATTERY_LEVEL       0x1C
+
 #define CHIP_CMD_PLAY_SOUND              0x06
 #define CHIP_CMD_SET_POSITION            0x08
 #define CHIP_CMD_GET_GESTURE_RESPONSE    0x0A
 #define CHIP_CMD_SET_GESTURE_RADAR_MODE  0x0C
 #define CHIP_CMD_GET_RADAR_RESPONSE      0x0C
 #define CHIP_CMD_GET_GESTURE_RADAR_MODE  0x0D
-#define CHIP_CMD_GET_DOG_VERSION         0x14
-#define CHIP_CMD_SET_VOLUME              0x18
-#define CHIP_CMD_GET_VOLUME              0x16
 #define CHIP_CMD_GET_HARDWARE_INFO       0x19
 #define CHIP_CMD_SHAKE_RESPONSE          0x1A
 #define CHIP_CMD_CLAP_RESPONSE           0x1D
@@ -71,7 +73,6 @@ struct CHiP
     CHiPTransport*            pTransport;
     CHiPRadarNotification     lastRadar;
     CHiPGestureNotification   lastGesture;
-    CHiPStatus                lastStatus;
     CHiPWeight                lastWeight;
     CHiPClap                  lastClap;
     uint32_t                  flags;
@@ -80,7 +81,6 @@ struct CHiP
 
 // Forward Function Declarations.
 static int isValidHeadLED(CHiPHeadLED led);
-static int parseStatus(CHiP* pCHiP, CHiPStatus* pStatus, const uint8_t* pResponse, size_t responseLength);
 static int parseWeight(CHiP* pCHiP, CHiPWeight* pWeight, const uint8_t* pResponse, size_t responseLength);
 static void readNotifications(CHiP* pCHiP);
 
@@ -543,35 +543,31 @@ int chipResetOdometer(CHiP* pCHiP)
     return chipRawSend(pCHiP, command, sizeof(command));
 }
 
-int chipGetStatus(CHiP* pCHiP, CHiPStatus* pStatus)
+int chipGetBatteryLevel(CHiP* pCHiP, CHiPBatteryLevel* pBatteryLevel)
 {
-    static const uint8_t getStatus[1] = { CHIP_CMD_GET_STATUS };
-    uint8_t              response[1+2];
+    static const uint8_t getStatus[1] = { CHIP_CMD_GET_BATTERY_LEVEL };
+    uint8_t              response[1+3];
     size_t               responseLength;
     int                  result;
 
     assert( pCHiP );
-    assert( pStatus );
+    assert( pBatteryLevel );
 
     result = chipRawReceive(pCHiP, getStatus, sizeof(getStatus), response, sizeof(response), &responseLength);
     if (result)
         return result;
-    return parseStatus(pCHiP, pStatus, response, responseLength);
-}
-
-static int parseStatus(CHiP* pCHiP, CHiPStatus* pStatus, const uint8_t* pResponse, size_t responseLength)
-{
-    if (responseLength != 3 ||
-        pResponse[0] != CHIP_CMD_GET_STATUS ||
-        pResponse[2] > CHIP_POSITION_ON_BACK_WITH_KICKSTAND)
+    if (responseLength != 4 ||
+        response[0] != CHIP_CMD_GET_BATTERY_LEVEL ||
+        response[1] > CHIP_CHARGING_STATUS_CHARGING_FINISHED ||
+        response[2] > CHIP_CHARGER_TYPE_BASE)
     {
         return CHIP_ERROR_BAD_RESPONSE;
     }
 
-    // Convert battery integer value to floating point voltage value.
-    pStatus->millisec = chipTransportGetMilliseconds(pCHiP->pTransport);
-    pStatus->battery = (float)(((pResponse[1] - 0x4D) / (float)(0x7C - 0x4D)) * (6.4f - 4.0f)) + 4.0f;
-    pStatus->position = pResponse[2];
+    // Convert battery integer value to floating point percentage value between 0.0f and 1.0f.
+    pBatteryLevel->chargingStatus = response[1];
+    pBatteryLevel->chargerType = response[2];
+    pBatteryLevel->batteryLevel = (float)(response[3] - 0x7D) / 34.0f;
     return CHIP_ERROR_NONE;
 }
 
@@ -705,11 +701,6 @@ static void readNotifications(CHiP* pCHiP)
                 pCHiP->flags |= CHIP_FLAG_SHAKE_VALID;
             }
             break;
-        case CHIP_CMD_GET_STATUS:
-            result = parseStatus(pCHiP, &pCHiP->lastStatus, response, responseLength);
-            if (result == CHIP_ERROR_NONE)
-                pCHiP->flags |= CHIP_FLAG_STATUS_VALID;
-            break;
         case CHIP_CMD_GET_WEIGHT:
             result = parseWeight(pCHiP, &pCHiP->lastWeight, response, responseLength);
             if (result == CHIP_ERROR_NONE)
@@ -746,17 +737,6 @@ int chipGetLatestGestureNotification(CHiP* pCHiP, CHiPGestureNotification* pNoti
         return CHIP_ERROR_BAD_RESPONSE;
 
     *pNotification = pCHiP->lastGesture;
-    return CHIP_ERROR_NONE;
-}
-
-int chipGetLatestStatusNotification(CHiP* pCHiP, CHiPStatus* pStatus)
-{
-    readNotifications(pCHiP);
-
-    if ((pCHiP->flags & CHIP_FLAG_STATUS_VALID) == 0)
-        return CHIP_ERROR_EMPTY;
-
-    *pStatus = pCHiP->lastStatus;
     return CHIP_ERROR_NONE;
 }
 

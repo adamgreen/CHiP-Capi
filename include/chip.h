@@ -36,6 +36,43 @@
 #define CHIP_REQUEST_MAX_LEN    (17 + 1)    // Longest request is CHIP_CMD_PLAY_SOUND.
 #define CHIP_RESPONSE_MAX_LEN   (10 + 1)    // Longest response is CHIP_CMD_GET_DOG_VERSION.
 
+typedef enum CHiPChargingStatus
+{
+    CHIP_CHARGING_STATUS_NOT_CHARGING = 0x00,
+    CHIP_CHARGING_STATUS_CHARGING = 0x01,
+    CHIP_CHARGING_STATUS_CHARGING_FINISHED = 0x02
+} CHiPChargingStatus;
+
+typedef enum CHiPChargerType 
+{
+    // Charging via DC barrel jack port on chest.
+    CHIP_CHARGER_TYPE_DC = 0x00,
+    // Charging on the base station (SmartBed).
+    CHIP_CHARGER_TYPE_BASE  = 0x01
+} CHiPChargerType;
+
+typedef struct CHiPDogVersion
+{
+    uint8_t bodyHardware;
+    uint8_t headHardware;
+    uint8_t mechanic;
+    uint8_t bleSpiFlash;
+    uint8_t nuvotonSpiFlash;
+    uint8_t bleBootloader;
+    uint8_t bleApromFirmware;
+    uint8_t nuvotonBootloaderFirmware;
+    uint8_t nuvotonApromFirmware;
+    uint8_t nuvoton;
+} CHiPDogVersion;
+
+typedef struct CHiPBatteryLevel
+{
+    // Floating point value between 0.0 (depleted battery) and 1.0 (full battery).
+    float              batteryLevel;
+    CHiPChargingStatus chargingStatus;
+    CHiPChargerType    chargerType;
+} CHiPBatteryLevel;
+
 typedef enum CHiPGestureRadarMode
 {
     CHIP_GESTURE_RADAR_DISABLED = 0x00,
@@ -241,13 +278,6 @@ typedef struct CHiPGestureNotification
     CHiPGesture gesture;
 } CHiPGestureNotification;
 
-typedef struct CHiPStatus
-{
-    uint32_t    millisec;
-    float       battery;
-    CHiPPosition position;
-} CHiPStatus;
-
 typedef struct CHiPWeight
 {
     uint32_t millisec;
@@ -276,20 +306,6 @@ typedef struct CHiPHeadLEDs
     CHiPHeadLED led3;
     CHiPHeadLED led4;
 } CHiPHeadLEDs;
-
-typedef struct CHiPDogVersion
-{
-    uint8_t bodyHardware;
-    uint8_t headHardware;
-    uint8_t mechanic;
-    uint8_t bleSpiFlash;
-    uint8_t nuvotonSpiFlash;
-    uint8_t bleBootloader;
-    uint8_t bleApromFirmware;
-    uint8_t nuvotonBootloaderFirmware;
-    uint8_t nuvotonApromFirmware;
-    uint8_t nuvoton;
-} CHiPDogVersion;
 
 typedef struct CHiPSound
 {
@@ -323,6 +339,8 @@ int chipStopRobotDiscovery(CHiP* pCHiP);
 int chipSetVolume(CHiP* pCHiP, uint8_t volume);
 int chipGetVolume(CHiP* pCHiP, uint8_t* pVolume);
 
+int chipGetBatteryLevel(CHiP* pCHiP, CHiPBatteryLevel* pBatteryLevel);
+
 int chipGetDogVersion(CHiP* pCHiP, CHiPDogVersion* pVersion);
 
 
@@ -353,8 +371,6 @@ int chipPlaySound(CHiP* pCHiP, const CHiPSound* pSounds, size_t soundCount, uint
 int chipReadOdometer(CHiP* pCHiP, float* pDistanceInCm);
 int chipResetOdometer(CHiP* pCHiP);
 
-int chipGetStatus(CHiP* pCHiP, CHiPStatus* pStatus);
-
 int chipGetWeight(CHiP* pCHiP, CHiPWeight* pWeight);
 
 int chipGetClapSettings(CHiP* pCHiP, CHiPClapSettings* pSettings);
@@ -363,7 +379,6 @@ int chipSetClapDelay(CHiP* pCHiP, uint16_t delay);
 
 int chipGetLatestRadarNotification(CHiP* pCHiP, CHiPRadarNotification* pNotification);
 int chipGetLatestGestureNotification(CHiP* pCHiP, CHiPGestureNotification* pNotification);
-int chipGetLatestStatusNotification(CHiP* pCHiP, CHiPStatus* pStatus);
 int chipGetLatestShakeNotification(CHiP* pCHiP);
 int chipGetLatestWeightNotification(CHiP* pCHiP, CHiPWeight* pWeight);
 int chipGetLatestClapNotification(CHiP* pCHiP, CHiPClap* pClap);
