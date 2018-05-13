@@ -51,6 +51,13 @@ typedef enum CHiPChargerType
     CHIP_CHARGER_TYPE_BASE  = 0x01
 } CHiPChargerType;
 
+typedef enum CHiPSpeed
+{
+    CHIP_SPEED_ADULT = 0x00,
+    CHIP_SPEED_KID = 0x01
+} CHiPSpeed;
+
+
 typedef struct CHiPDogVersion
 {
     uint8_t bodyHardware;
@@ -371,6 +378,9 @@ int chipSetCurrentDateTime(CHiP* pCHiP, const CHiPCurrentDateTime* pDateTime);
 int chipGetAlarmDateTime(CHiP* pCHiP, CHiPAlarmDateTime* pDateTime);
 int chipSetAlarmDateTime(CHiP* pCHiP, const CHiPAlarmDateTime* pDateTime);
 int chipCancelAlarm(CHiP* pCHiP);
+
+int chipGetSpeed(CHiP* pCHiP, CHiPSpeed* pSpeed);
+int chipSetSpeed(CHiP* pCHiP, CHiPSpeed speed);
 
 
 int chipSetGestureRadarMode(CHiP* pCHiP, CHiPGestureRadarMode mode);

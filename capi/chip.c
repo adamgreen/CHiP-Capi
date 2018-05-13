@@ -31,6 +31,8 @@
 #define CHIP_CMD_GET_CURRENT_DATE_TIME   0x3A
 #define CHIP_CMD_SET_CURRENT_DATE_TIME   0x43
 #define CHIP_CMD_SET_ALARM_DATE_TIME     0x44
+#define CHIP_CMD_SET_SPEED               0x45
+#define CHIP_CMD_GET_SPEED               0x46
 #define CHIP_CMD_GET_ALARM_DATE_TIME     0x4A
 
 #define CHIP_CMD_PLAY_SOUND              0x06
@@ -700,6 +702,44 @@ int chipCancelAlarm(CHiP* pCHiP)
 
     memset(command, 0, sizeof(command));
     command[0] = CHIP_CMD_SET_ALARM_DATE_TIME;
+
+    return chipRawSend(pCHiP, command, sizeof(command));
+}
+
+int chipGetSpeed(CHiP* pCHiP, CHiPSpeed* pSpeed)
+{
+    static const uint8_t getSpeed[1] = { CHIP_CMD_GET_SPEED };
+    uint8_t              response[1+1];
+    size_t               responseLength;
+    int                  result;
+
+    assert( pCHiP );
+    assert( pSpeed );
+
+    result = chipRawReceive(pCHiP, getSpeed, sizeof(getSpeed), response, sizeof(response), &responseLength);
+    if (result)
+        return result;
+    if (responseLength != 2 ||
+        response[0] != CHIP_CMD_GET_SPEED ||
+        response[1] > CHIP_SPEED_KID)
+    {
+        return CHIP_ERROR_BAD_RESPONSE;
+    }
+
+    *pSpeed = response[1];
+
+    return CHIP_ERROR_NONE;
+}
+
+int chipSetSpeed(CHiP* pCHiP, CHiPSpeed speed)
+{
+    uint8_t command[1+1];
+
+    assert( pCHiP );
+    assert ( speed <= CHIP_SPEED_KID );
+
+    command[0] = CHIP_CMD_SET_SPEED;
+    command[1] = speed;
 
     return chipRawSend(pCHiP, command, sizeof(command));
 }
