@@ -84,6 +84,15 @@ typedef struct CHiPCurrentDateTime
     uint8_t  dayOfWeek;
 } CHiPCurrentDateTime;
 
+typedef struct CHiPAlarmDateTime
+{
+    uint16_t year;
+    uint8_t  month;
+    uint8_t  day;
+    uint8_t  hour;
+    uint8_t  minute;
+} CHiPAlarmDateTime;
+
 
 typedef enum CHiPGestureRadarMode
 {
@@ -355,9 +364,13 @@ int chipGetBatteryLevel(CHiP* pCHiP, CHiPBatteryLevel* pBatteryLevel);
 
 int chipGetDogVersion(CHiP* pCHiP, CHiPDogVersion* pVersion);
 
+// Current & Alarm Date/Time are cleared on power cycle.
 int chipGetCurrentDateTime(CHiP* pCHiP, CHiPCurrentDateTime* pDateTime);
 int chipSetCurrentDateTime(CHiP* pCHiP, const CHiPCurrentDateTime* pDateTime);
 
+int chipGetAlarmDateTime(CHiP* pCHiP, CHiPAlarmDateTime* pDateTime);
+int chipSetAlarmDateTime(CHiP* pCHiP, const CHiPAlarmDateTime* pDateTime);
+int chipCancelAlarm(CHiP* pCHiP);
 
 
 int chipSetGestureRadarMode(CHiP* pCHiP, CHiPGestureRadarMode mode);

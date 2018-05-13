@@ -64,6 +64,7 @@ void robotMain(void)
     result = chipGetCurrentDateTime(pCHiP, &dateTime);
     printf("Updated CHiP Date Time\n");
     printCurrentDateTime(&dateTime);
+
     chipUninit(pCHiP);
 }
 
