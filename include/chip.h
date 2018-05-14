@@ -21,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+
 // Integer error codes that can be returned from most of these CHiP API functions.
 #define CHIP_ERROR_NONE          0 // Success
 #define CHIP_ERROR_CONNECT       1 // Connection to CHiP failed.
@@ -33,9 +34,9 @@
 #define CHIP_ERROR_BAD_RESPONSE  8 // Unexpected response from CHiP.
 
 // Maximum length of CHiP request and response buffer lengths.
-// UNDONE: Update the request max length since play sound is different.
-#define CHIP_REQUEST_MAX_LEN    (17 + 1)    // Longest request is CHIP_CMD_PLAY_SOUND.
+#define CHIP_REQUEST_MAX_LEN    (8 + 1)     // Longest request is CHIP_CMD_SET_CURRENT_DATE_TIME.
 #define CHIP_RESPONSE_MAX_LEN   (10 + 1)    // Longest response is CHIP_CMD_GET_DOG_VERSION.
+
 
 typedef enum CHiPChargingStatus
 {
@@ -268,130 +269,6 @@ typedef struct CHiPAlarmDateTime
 } CHiPAlarmDateTime;
 
 
-
-
-typedef enum CHiPGestureRadarMode
-{
-    CHIP_GESTURE_RADAR_DISABLED = 0x00,
-    CHIP_GESTURE                = 0x02,
-    CHIP_RADAR                  = 0x04
-} CHiPGestureRadarMode;
-
-typedef enum CHiPRadar
-{
-    CHIP_RADAR_NONE      = 0x01,
-    CHIP_RADAR_10CM_30CM = 0x02,
-    CHIP_RADAR_0CM_10CM  = 0x03
-} CHiPRadar;
-
-typedef enum CHiPGesture
-{
-    CHIP_GESTURE_LEFT               = 0x0A,
-    CHIP_GESTURE_RIGHT              = 0x0B,
-    CHIP_GESTURE_CENTER_SWEEP_LEFT  = 0x0C,
-    CHIP_GESTURE_CENTER_SWEEP_RIGHT = 0x0D,
-    CHIP_GESTURE_CENTER_HOLD        = 0x0E,
-    CHIP_GESTURE_FORWARD            = 0x0F,
-    CHIP_GESTURE_BACKWARD           = 0x10
-} CHiPGesture;
-
-typedef enum CHiPHeadLED
-{
-    CHIP_HEAD_LED_OFF        = 0,
-    CHIP_HEAD_LED_ON         = 1,
-    CHIP_HEAD_LED_BLINK_SLOW = 2,
-    CHIP_HEAD_LED_BLINK_FAST = 3
-} CHiPHeadLED;
-
-typedef enum CHiPDriveDirection
-{
-    CHIP_DRIVE_FORWARD  = 0x00,
-    CHIP_DRIVE_BACKWARD = 0x01
-} CHiPDriveDirection;
-
-typedef enum CHiPTurnDirection
-{
-    CHIP_TURN_LEFT  = 0x00,
-    CHIP_TURN_RIGHT = 0x01
-} CHiPTurnDirection;
-
-typedef enum CHiPFallDirection
-{
-    CHIP_FALL_ON_BACK   = 0x00,
-    CHIP_FALL_FACE_DOWN = 0x01
-} CHiPFallDirection;
-
-typedef enum CHiPPosition
-{
-    CHIP_POSITION_ON_BACK                = 0x00,
-    CHIP_POSITION_FACE_DOWN              = 0x01,
-    CHIP_POSITION_UPRIGHT                = 0x02,
-    CHIP_POSITION_PICKED_UP              = 0x03,
-    CHIP_POSITION_HAND_STAND             = 0x04,
-    CHIP_POSITION_FACE_DOWN_ON_TRAY      = 0x05,
-    CHIP_POSITION_ON_BACK_WITH_KICKSTAND = 0x06
-} CHiPPosition;
-
-typedef enum CHiPGetUp
-{
-    CHIP_GETUP_FROM_FRONT  = 0x00,
-    CHIP_GETUP_FROM_BACK   = 0x01,
-    CHIP_GETUP_FROM_EITHER = 0x02
-} CHiPGetUp;
-
-typedef enum CHiPClapEnabled
-{
-    CHIP_CLAP_DISABLED = 0x00,
-    CHIP_CLAP_ENABLED  = 0x01
-} CHiPClapEnabled;
-
-typedef struct CHiPRadarNotification
-{
-    uint32_t millisec;
-    CHiPRadar radar;
-} CHiPRadarNotification;
-
-typedef struct CHiPGestureNotification
-{
-    uint32_t   millisec;
-    CHiPGesture gesture;
-} CHiPGestureNotification;
-
-typedef struct CHiPWeight
-{
-    uint32_t millisec;
-    int8_t   weight;
-} CHiPWeight;
-
-typedef struct CHiPClap
-{
-    uint32_t millisec;
-    uint8_t  count;
-} CHiPClap;
-
-typedef struct CHiPChestLED
-{
-    uint16_t onTime;
-    uint16_t offTime;
-    uint8_t  red;
-    uint8_t  green;
-    uint8_t  blue;
-} CHiPChestLED;
-
-typedef struct CHiPHeadLEDs
-{
-    CHiPHeadLED led1;
-    CHiPHeadLED led2;
-    CHiPHeadLED led3;
-    CHiPHeadLED led4;
-} CHiPHeadLEDs;
-
-typedef struct CHiPClapSettings
-{
-    CHiPClapEnabled enabled;
-    uint16_t       delay;
-} CHiPClapSettings;
-
 // Abstraction of the pointer type returned by chipInit() and subsequently passed into all other chip*() functions.
 typedef struct CHiP CHiP;
 
@@ -413,10 +290,18 @@ int chipDrive(CHiP* pCHiP, int8_t forwardReverse, int8_t leftRight, int8_t spin)
 
 int chipAction(CHiP* pCHiP, CHiPAction action);
 
+int chipGetEyeBrightness(CHiP* pCHiP, uint8_t* pBrightness);
+int chipSetEyeBrightness(CHiP* pCHiP, uint8_t brightness);
+
 int chipSetVolume(CHiP* pCHiP, uint8_t volume);
 int chipGetVolume(CHiP* pCHiP, uint8_t* pVolume);
+int chipPlaySound(CHiP* pCHiP, CHiPSoundIndex sound);
+int chipStopSound(CHiP* pCHiP);
 
 int chipGetBatteryLevel(CHiP* pCHiP, CHiPBatteryLevel* pBatteryLevel);
+
+int chipGetSpeed(CHiP* pCHiP, CHiPSpeed* pSpeed);
+int chipSetSpeed(CHiP* pCHiP, CHiPSpeed speed);
 
 int chipGetDogVersion(CHiP* pCHiP, CHiPDogVersion* pVersion);
 
@@ -428,58 +313,11 @@ int chipGetAlarmDateTime(CHiP* pCHiP, CHiPAlarmDateTime* pDateTime);
 int chipSetAlarmDateTime(CHiP* pCHiP, const CHiPAlarmDateTime* pDateTime);
 int chipCancelAlarm(CHiP* pCHiP);
 
-int chipGetSpeed(CHiP* pCHiP, CHiPSpeed* pSpeed);
-int chipSetSpeed(CHiP* pCHiP, CHiPSpeed speed);
-
-int chipGetEyeBrightness(CHiP* pCHiP, uint8_t* pBrightness);
-int chipSetEyeBrightness(CHiP* pCHiP, uint8_t brightness);
-
 int chipForceSleep(CHiP* pCHiP);
-
-int chipPlaySound(CHiP* pCHiP, CHiPSoundIndex sound);
-int chipStopSound(CHiP* pCHiP);
-
-
-
-
-int chipSetGestureRadarMode(CHiP* pCHiP, CHiPGestureRadarMode mode);
-int chipGetGestureRadarMode(CHiP* pCHiP, CHiPGestureRadarMode* pMode);
-
-int chipSetChestLED(CHiP* pCHiP, uint8_t red, uint8_t green, uint8_t blue);
-int chipFlashChestLED(CHiP* pCHiP, uint8_t red, uint8_t green, uint8_t blue, uint16_t onTime, uint16_t offTime);
-int chipGetChestLED(CHiP* pCHiP, CHiPChestLED* pChestLED);
-int chipSetHeadLEDs(CHiP* pCHiP, CHiPHeadLED led1, CHiPHeadLED led2, CHiPHeadLED led3, CHiPHeadLED led4);
-int chipGetHeadLEDs(CHiP* pCHiP, CHiPHeadLEDs* pHeadLEDs);
-
-int chipDistanceDrive(CHiP* pCHiP, CHiPDriveDirection driveDirection, uint8_t cm,
-                      CHiPTurnDirection turnDirection, uint16_t degrees);
-int chipTurnLeft(CHiP* pCHiP, uint16_t degrees, uint8_t speed);
-int chipTurnRight(CHiP* pCHiP, uint16_t degrees, uint8_t speed);
-int chipDriveForward(CHiP* pCHiP, uint8_t speed, uint16_t time);
-int chipDriveBackward(CHiP* pCHiP, uint8_t speed, uint16_t time);
-int chipStop(CHiP* pCHiP);
-int chipFallDown(CHiP* pCHiP, CHiPFallDirection direction);
-int chipGetUp(CHiP* pCHiP, CHiPGetUp getup);
-
-int chipReadOdometer(CHiP* pCHiP, float* pDistanceInCm);
-int chipResetOdometer(CHiP* pCHiP);
-
-int chipGetWeight(CHiP* pCHiP, CHiPWeight* pWeight);
-
-int chipGetClapSettings(CHiP* pCHiP, CHiPClapSettings* pSettings);
-int chipEnableClap(CHiP* pCHiP, CHiPClapEnabled enabled);
-int chipSetClapDelay(CHiP* pCHiP, uint16_t delay);
-
-int chipGetLatestRadarNotification(CHiP* pCHiP, CHiPRadarNotification* pNotification);
-int chipGetLatestGestureNotification(CHiP* pCHiP, CHiPGestureNotification* pNotification);
-int chipGetLatestShakeNotification(CHiP* pCHiP);
-int chipGetLatestWeightNotification(CHiP* pCHiP, CHiPWeight* pWeight);
-int chipGetLatestClapNotification(CHiP* pCHiP, CHiPClap* pClap);
 
 int chipRawSend(CHiP* pCHiP, const uint8_t* pRequest, size_t requestLength);
 int chipRawReceive(CHiP* pCHiP, const uint8_t* pRequest, size_t requestLength,
                    uint8_t* pResponseBuffer, size_t responseBufferSize, size_t* pResponseLength);
 int chipRawReceiveNotification(CHiP* pCHiP, uint8_t* pNotifyBuffer, size_t notifyBufferSize, size_t* pNotifyLength);
-
 
 #endif // CHIP_H_

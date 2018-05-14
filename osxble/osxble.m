@@ -44,7 +44,7 @@ static void* robotThread(void* pArg);
 // The controller can register for notifications on this characteristic.
 #define CHIP_RECEIVE_DATA_NOTIFY_CHARACTERISTIC "ffe4"
 // Characteristic of CHIP_SEND_DATA_SERVICE to which data is sent to CHiP.
-#define CHIP_SEND_DATA_WRITE_CHARACTERISTIC "ffe9"
+#define CHIP_SEND_DATA_WRITE_CHARACTERISTIC     "ffe9"
 
 // CHiP devices will have the following values in the first 2 bytes of their Manufacturer Data.
 #define CHIP_MANUFACTURER_DATA_TYPE "\x00\x1d"
