@@ -14,6 +14,7 @@
 */
 /* Example used in following API documentation:
     chipPlaySound()
+    chipStopSound()
 */
 #include <stdio.h>
 #include <unistd.h>
@@ -39,21 +40,20 @@ void robotMain(void)
     result = chipConnectToRobot(pCHiP, NULL);
 
     // Play 1 sound.
-    const CHiPSound sounds1[] = {{CHIP_SOUND_ONEKHZ_500MS_8K16BIT, 0}};
-    result = chipPlaySound(pCHiP, sounds1, sizeof(sounds1)/sizeof(sounds1[0]), 0);
+    printf("Growling...\n");
+    result = chipPlaySound(pCHiP, CHIP_SOUND_GROWL_A_A34);
+
+    sleep(1);
+
+    printf("Stop growling!\n");
+    result = chipStopSound(pCHiP);
 
     sleep(2);
 
-    // Play 2 sounds with 1 second delay between them, repeating them a second time.
-    // Play the first at a lower volume than the second.
-    const CHiPSound sounds2[] = {{CHIP_SOUND_VOLUME_4, 0},            // Play eating sound at half volume.
-                                {CHIP_SOUND_ACTION_EATING, 1000},
-                                {CHIP_SOUND_VOLUME_7, 0},            // Play burping sound at full volume.
-                                {CHIP_SOUND_ACTION_BURPING, 0},
-                                {CHIP_SOUND_VOLUME_1, 0}};           // Finish by setting volume low.
-    result = chipPlaySound(pCHiP, sounds2, sizeof(sounds2)/sizeof(sounds2[0]), 1);
+    printf("Licking...\n");
+    result = chipPlaySound(pCHiP, CHIP_SOUND_LICK_1_A34);
 
-    sleep(7);
+    sleep(5);
 
     chipUninit(pCHiP);
 }

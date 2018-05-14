@@ -24,6 +24,7 @@
 // CHiP Protocol Commands.
 // These command codes are placed in the first byte of requests sent to the CHiP and responses sent back from the CHiP.
 // See https://github.com/WowWeeLabs/CHiP-BLE-Protocol/blob/master/CHiP-Protocol.md for more information.
+#define CHIP_CMD_PLAY_SOUND              0x06
 #define CHIP_CMD_GET_DOG_VERSION         0x14
 #define CHIP_CMD_GET_VOLUME              0x16
 #define CHIP_CMD_SET_VOLUME              0x18
@@ -39,7 +40,6 @@
 #define CHIP_CMD_FORCE_SLEEP             0xFA
 
 
-#define CHIP_CMD_PLAY_SOUND              0x06
 #define CHIP_CMD_SET_POSITION            0x08
 #define CHIP_CMD_GET_GESTURE_RESPONSE    0x0A
 #define CHIP_CMD_SET_GESTURE_RADAR_MODE  0x0C
@@ -68,6 +68,10 @@
 #define CHIP_CMD_FLASH_CHEST_LED         0x89
 #define CHIP_CMD_SET_HEAD_LEDS           0x8A
 #define CHIP_CMD_GET_HEAD_LEDS           0x8B
+
+
+// Special sound index used to stop any current playing sound.
+#define CHIP_SOUND_SHORT_MUTE_FOR_STOP   138
 
 
 // CHiP::flags bits
@@ -449,34 +453,23 @@ int chipGetUp(CHiP* pCHiP, CHiPGetUp getup)
     return chipRawSend(pCHiP, command, sizeof(command));
 }
 
-int chipPlaySound(CHiP* pCHiP, const CHiPSound* pSounds, size_t soundCount, uint8_t repeatCount)
+int chipPlaySound(CHiP* pCHiP, CHiPSoundIndex sound)
 {
-    size_t  i;
-    uint8_t command[1+17];
+    uint8_t command[1+2];
 
     assert( pCHiP );
-    assert( pSounds );
-    assert( soundCount <= 8 );
+    assert( sound >= CHIP_SOUND_BARK_X1_ANGRY_A34 && sound <= CHIP_SOUND_SHORT_MUTE_FOR_STOP );
 
     command[0] = CHIP_CMD_PLAY_SOUND;
-    for (i = 0 ; i < 8 ; i++)
-    {
-        if (i < soundCount)
-        {
-            // Delay is in units of 30 msecs.
-            assert( pSounds[i].delay <= 255 * 30 );
-            command[1 + i*2] = pSounds[i].sound;
-            command[1 + i*2 +1 ] = pSounds[i].delay / 30;
-        }
-        else
-        {
-            command[1 + i*2] = CHIP_SOUND_SHORT_MUTE_FOR_STOP;
-            command[1 + i*2 + 1] = 0;
-        }
-    }
-    command[17] = repeatCount;
+    command[1] = sound;
+    command[2] = 0;
 
     return chipRawSend(pCHiP, command, sizeof(command));
+}
+
+int chipStopSound(CHiP* pCHiP)
+{
+    return chipPlaySound(pCHiP, CHIP_SOUND_SHORT_MUTE_FOR_STOP);
 }
 
 int chipSetVolume(CHiP* pCHiP, uint8_t volume)
