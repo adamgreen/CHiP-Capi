@@ -25,6 +25,7 @@
 // These command codes are placed in the first byte of requests sent to the CHiP and responses sent back from the CHiP.
 // See https://github.com/WowWeeLabs/CHiP-BLE-Protocol/blob/master/CHiP-Protocol.md for more information.
 #define CHIP_CMD_PLAY_SOUND              0x06
+#define CHIP_CMD_ACTION                  0x07
 #define CHIP_CMD_GET_DOG_VERSION         0x14
 #define CHIP_CMD_GET_VOLUME              0x16
 #define CHIP_CMD_SET_VOLUME              0x18
@@ -39,6 +40,7 @@
 #define CHIP_CMD_GET_ALARM_DATE_TIME     0x4A
 #define CHIP_CMD_DRIVE                   0x78
 #define CHIP_CMD_FORCE_SLEEP             0xFA
+
 
 
 #define CHIP_CMD_SET_POSITION            0x08
@@ -339,6 +341,19 @@ int chipDrive(CHiP* pCHiP, int8_t forwardReverse, int8_t leftRight, int8_t spin)
         command[3] = 0xA0 + (-leftRight);
     else
         command[3] = 0x80 + leftRight;
+
+    return chipRawSend(pCHiP, command, sizeof(command));
+}
+
+int chipAction(CHiP* pCHiP, CHiPAction action)
+{
+    uint8_t command[1+1];
+
+    assert( pCHiP );
+    assert( action >= CHIP_ACTION_RESET && action <= CHIP_ACTION_FACE_DOWN_FOR_CONTROLLING_CHIPPIES );
+
+    command[0] = CHIP_CMD_ACTION;
+    command[1] = action;
 
     return chipRawSend(pCHiP, command, sizeof(command));
 }

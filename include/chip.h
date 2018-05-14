@@ -199,6 +199,31 @@ typedef enum CHiPSoundIndex
     CHIP_SOUND_CHIO_DOG_EMO_RESPONSE_2A = 137,
 } CHiPSoundIndex;
 
+typedef enum CHiPAction
+{
+    CHIP_ACTION_RESET = 0x01,
+    CHIP_ACTION_SIT = 0x02,
+    CHIP_ACTION_LIE_DOWN = 0x03,
+    CHIP_ACTION_ALL_IDLE_MODE = 0x04,
+    CHIP_ACTION_DANCE = 0x05,
+    CHIP_ACTION_VR_TRAINING1 = 0x06,
+    CHIP_ACTION_VR_TRAINING2 = 0x07,
+    CHIP_ACTION_RESET2 = 0x08,
+    CHIP_ACTION_JUMP = 0x09,
+    CHIP_ACTION_YOGA = 0x0a,
+    CHIP_ACTION_WATCH_COME = 0x0b,
+    CHIP_ACTION_WATCH_FOLLOW = 0x0c,
+    CHIP_ACTION_WATCH_FETCH = 0x0d,
+    CHIP_ACTION_BALL_TRACKING = 0x0e,
+    CHIP_ACTION_BALL_SOCCER = 0x0f,
+    CHIP_ACTION_BASE = 0x10,
+    CHIP_ACTION_DANCE_BASE = 0x11,
+    CHIP_ACTION_STOP_OR_STAND_FROM_BASE = 0x12,
+    CHIP_ACTION_GUARD_MODE = 0x13,
+    CHIP_ACTION_FREE_ROAM = 0x14,
+    CHIP_ACTION_FACE_DOWN_FOR_CONTROLLING_CHIPPIES = 0x15,
+} CHiPAction;
+
 
 typedef struct CHiPDogVersion
 {
@@ -385,6 +410,8 @@ int chipGetDiscoveredRobotName(CHiP* pCHiP, size_t robotIndex, const char** ppRo
 int chipStopRobotDiscovery(CHiP* pCHiP);
 
 int chipDrive(CHiP* pCHiP, int8_t forwardReverse, int8_t leftRight, int8_t spin);
+
+int chipAction(CHiP* pCHiP, CHiPAction action);
 
 int chipSetVolume(CHiP* pCHiP, uint8_t volume);
 int chipGetVolume(CHiP* pCHiP, uint8_t* pVolume);
