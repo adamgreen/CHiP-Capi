@@ -384,6 +384,8 @@ int chipGetDiscoveredRobotCount(CHiP* pCHiP, size_t* pCount);
 int chipGetDiscoveredRobotName(CHiP* pCHiP, size_t robotIndex, const char** ppRobotName);
 int chipStopRobotDiscovery(CHiP* pCHiP);
 
+int chipDrive(CHiP* pCHiP, int8_t forwardReverse, int8_t leftRight, int8_t spin);
+
 int chipSetVolume(CHiP* pCHiP, uint8_t volume);
 int chipGetVolume(CHiP* pCHiP, uint8_t* pVolume);
 
@@ -422,7 +424,6 @@ int chipGetChestLED(CHiP* pCHiP, CHiPChestLED* pChestLED);
 int chipSetHeadLEDs(CHiP* pCHiP, CHiPHeadLED led1, CHiPHeadLED led2, CHiPHeadLED led3, CHiPHeadLED led4);
 int chipGetHeadLEDs(CHiP* pCHiP, CHiPHeadLEDs* pHeadLEDs);
 
-int chipContinuousDrive(CHiP* pCHiP, int8_t velocity, int8_t turnRate);
 int chipDistanceDrive(CHiP* pCHiP, CHiPDriveDirection driveDirection, uint8_t cm,
                       CHiPTurnDirection turnDirection, uint16_t degrees);
 int chipTurnLeft(CHiP* pCHiP, uint16_t degrees, uint8_t speed);

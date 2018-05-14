@@ -37,6 +37,7 @@
 #define CHIP_CMD_SET_EYE_BRIGHTNESS      0x48
 #define CHIP_CMD_GET_EYE_BRIGHTNESS      0x49
 #define CHIP_CMD_GET_ALARM_DATE_TIME     0x4A
+#define CHIP_CMD_DRIVE                   0x78
 #define CHIP_CMD_FORCE_SLEEP             0xFA
 
 
@@ -58,7 +59,6 @@
 #define CHIP_CMD_TURN_LEFT               0x73
 #define CHIP_CMD_TURN_RIGHT              0x74
 #define CHIP_CMD_STOP                    0x77
-#define CHIP_CMD_CONTINUOUS_DRIVE        0x78
 #define CHIP_CMD_GET_STATUS              0x79
 #define CHIP_CMD_GET_WEIGHT              0x81
 #define CHIP_CMD_GET_CHEST_LED           0x83
@@ -308,29 +308,37 @@ static int isValidHeadLED(CHiPHeadLED led)
     return led >= CHIP_HEAD_LED_OFF && led <= CHIP_HEAD_LED_BLINK_FAST;
 }
 
-int chipContinuousDrive(CHiP* pCHiP, int8_t velocity, int8_t turnRate)
+int chipDrive(CHiP* pCHiP, int8_t forwardReverse, int8_t leftRight, int8_t spin)
 {
-    uint8_t command[1+2];
+    uint8_t command[1+3];
 
     assert( pCHiP );
-    assert( velocity >= -32 && velocity <= 32 );
-    assert( turnRate >= -32 && turnRate <= 32 );
+    assert( forwardReverse >= -32 && forwardReverse <= 32 );
+    assert( leftRight >= -32 && leftRight <= 32 );
+    assert( spin >= -32 && spin <= 32 );
 
-    command[0] = CHIP_CMD_CONTINUOUS_DRIVE;
+    command[0] = CHIP_CMD_DRIVE;
 
-    if (velocity == 0)
+    if (forwardReverse == 0)
         command[1] = 0x00;
-    else if (velocity < 0)
-        command[1] = 0x20 + (-velocity);
+    else if (forwardReverse < 0)
+        command[1] = 0x20 + (-forwardReverse);
     else
-        command[1] = velocity;
+        command[1] = forwardReverse;
 
-    if (turnRate == 0)
+    if (spin == 0)
         command[2] = 0x00;
-    else if (turnRate < 0)
-        command[2] = 0x60 + (-turnRate);
+    else if (spin < 0)
+        command[2] = 0x60 + (-spin);
     else
-        command[2] = 0x40 + turnRate;
+        command[2] = 0x40 + spin;
+
+    if (leftRight == 0)
+        command[3] = 0x00;
+    else if (leftRight < 0)
+        command[3] = 0xA0 + (-leftRight);
+    else
+        command[3] = 0x80 + leftRight;
 
     return chipRawSend(pCHiP, command, sizeof(command));
 }
