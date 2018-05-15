@@ -36,23 +36,25 @@ void robotMain(void)
     CHiP*   pCHiP = chipInit(NULL);
 
     printf("\tRawReceiveNotification.c - Use chipRawReceiveNotification() functions.\n"
-           "\tIn less than half a minute, a notification should be displayed.\n");
+           "\tDisplay notifications as they arrive. Press CTRL+C to terminate.\n");
 
     // Connect to first CHiP robot discovered.
     result = chipConnectToRobot(pCHiP, NULL);
 
     // Wait for first out of band notification to arrive.
-    while (CHIP_ERROR_EMPTY == chipRawReceiveNotification(pCHiP, response, sizeof(response), &responseLength))
+    while (1)
     {
+        if (CHIP_ERROR_EMPTY != chipRawReceiveNotification(pCHiP, response, sizeof(response), &responseLength))
+        {
+            // Display notification contents.
+            printf("notification -> ");
+            for (int i = 0 ; i < responseLength ; i++)
+            {
+                printf("%02X", response[i]);
+            }
+            printf("\n");
+        }
     }
-
-    // Display notification contents.
-    printf("notification -> ");
-    for (int i = 0 ; i < responseLength ; i++)
-    {
-        printf("%02X", response[i]);
-    }
-    printf("\n");
 
     chipUninit(pCHiP);
 }

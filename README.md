@@ -2088,3 +2088,234 @@ void robotMain(void)
     chipUninit(pCHiP);
 }
 ```
+
+
+---
+### chipRawSend
+```int chipRawSend(CHiP* pCHiP, const uint8_t* pRequest, size_t requestLength)```
+#### Description
+Send a raw command to the CHiP robot.
+
+#### Parameters
+* **pCHiP** is an object that was previously returned from the [chipInit()](#chipinit) call.
+* **pRequest** is a pointer to the array of the command bytes to be sent to the robot.
+* **requestLength** is the number of bytes in the pRequest buffer to be sent to the robot.
+
+#### Returns
+* **CHIP_ERROR_NONE** on success.
+* Non-zero CHIP_ERROR_* code otherwise.
+
+#### Notes
+* There are typically higher level APIs that can be used to send commands to the CHiP but in cases where the functionality you need isn't already implemented in the CHiP C API, you can use this function to send the raw command bytes directly to the CHiP.
+
+#### Example
+```c
+#include <stdio.h>
+#include <unistd.h>
+#include "chip.h"
+#include "osxble.h"
+
+#define CHIP_CMD_SET_EYE_BRIGHTNESS      0x48
+#define CHIP_CMD_GET_EYE_BRIGHTNESS      0x49
+
+int main(int argc, char *argv[])
+{
+    // Initialize the Core Bluetooth stack on this the main thread and start the worker robot thread to run the
+    // code found in robotMain() below.
+    osxCHiPInitAndRun();
+    return 0;
+}
+
+void robotMain(void)
+{
+    int     result = -1;
+    CHiP*   pCHiP = chipInit(NULL);
+
+    printf("\tRawSendReceive.c - Use chipRaw*() functions to blink CHiP's eyes.\n");
+
+    // Connect to first CHiP robot discovered.
+    result = chipConnectToRobot(pCHiP, NULL);
+
+    // Manually request the current eye brightness and restore to it later.
+    static const uint8_t getBrightness[1] = { CHIP_CMD_GET_EYE_BRIGHTNESS };
+    uint8_t              response[1+1];
+    size_t               responseLength;
+
+    result = chipRawReceive(pCHiP, getBrightness, sizeof(getBrightness), response, sizeof(response), &responseLength);
+    uint8_t originalBrightness = response[1];
+    printf("Original brighness = %u\n", originalBrightness);
+
+    // Blink the eyes by dimming and brightening the eyes a few times.
+    uint8_t command[1+1];
+    command[0] = CHIP_CMD_SET_EYE_BRIGHTNESS;
+    for (int i = 0 ; i < 5 ; i++)
+    {
+        command[1] = 0x40;
+        result = chipRawSend(pCHiP, command, sizeof(command));
+        usleep(250000);
+
+        command[1] = 0xFF;
+        result = chipRawSend(pCHiP, command, sizeof(command));
+        usleep(250000);
+    }
+
+    // Restore the brightness to original setting (probably 0, default).
+    command[1] = originalBrightness;
+    result = chipRawSend(pCHiP, command, sizeof(command));
+    usleep(250000);
+
+    chipUninit(pCHiP);
+}
+```
+
+
+---
+### chipRawReceive
+```int chipRawReceive(CHiP* pCHiP, const uint8_t* pRequest, size_t requestLength, uint8_t* pResponseBuffer, size_t responseBufferSize, size_t* pResponseLength)```
+#### Description
+Send a raw request to the CHiP and receive its raw response.
+
+#### Parameters
+* **pCHiP** is an object that was previously returned from the [chipInit()](#chipinit) call.
+* **pRequest** is a pointer to the array of the command bytes to be sent to the robot.
+* **requestLength** is the number of bytes in the pRequest buffer to be sent to the robot.
+* **pResponseBuffer** is a pointer to the array of bytes into which the response should be copied.
+* **responseBufferSize** is the number of bytes in the pResponseBuffer.
+* **pResponseLength** is a pointer to where the actual number of bytes in the response should be placed.  This value may be truncated to responseBufferSize if the actual response was > responseBufferSize.
+
+#### Returns
+* **CHIP_ERROR_NONE** on success.
+* **CHIP_ERROR_TIMEOUT** if CHiP doesn't respond to request after multiple retries.
+* Non-zero CHIP_ERROR_* code otherwise.
+
+#### Notes
+* There are typically higher level APIs that can be used to send requests to the CHiP but in cases where the functionality you need isn't already implemented in the CHiP C API, you can use this function to send the raw request to the CHiP and receive the raw resulting bytes.
+
+#### Example
+```c
+#include <stdio.h>
+#include <unistd.h>
+#include "chip.h"
+#include "osxble.h"
+
+#define CHIP_CMD_SET_EYE_BRIGHTNESS      0x48
+#define CHIP_CMD_GET_EYE_BRIGHTNESS      0x49
+
+int main(int argc, char *argv[])
+{
+    // Initialize the Core Bluetooth stack on this the main thread and start the worker robot thread to run the
+    // code found in robotMain() below.
+    osxCHiPInitAndRun();
+    return 0;
+}
+
+void robotMain(void)
+{
+    int     result = -1;
+    CHiP*   pCHiP = chipInit(NULL);
+
+    printf("\tRawSendReceive.c - Use chipRaw*() functions to blink CHiP's eyes.\n");
+
+    // Connect to first CHiP robot discovered.
+    result = chipConnectToRobot(pCHiP, NULL);
+
+    // Manually request the current eye brightness and restore to it later.
+    static const uint8_t getBrightness[1] = { CHIP_CMD_GET_EYE_BRIGHTNESS };
+    uint8_t              response[1+1];
+    size_t               responseLength;
+
+    result = chipRawReceive(pCHiP, getBrightness, sizeof(getBrightness), response, sizeof(response), &responseLength);
+    uint8_t originalBrightness = response[1];
+    printf("Original brighness = %u\n", originalBrightness);
+
+    // Blink the eyes by dimming and brightening the eyes a few times.
+    uint8_t command[1+1];
+    command[0] = CHIP_CMD_SET_EYE_BRIGHTNESS;
+    for (int i = 0 ; i < 5 ; i++)
+    {
+        command[1] = 0x40;
+        result = chipRawSend(pCHiP, command, sizeof(command));
+        usleep(250000);
+
+        command[1] = 0xFF;
+        result = chipRawSend(pCHiP, command, sizeof(command));
+        usleep(250000);
+    }
+
+    // Restore the brightness to original setting (probably 0, default).
+    command[1] = originalBrightness;
+    result = chipRawSend(pCHiP, command, sizeof(command));
+    usleep(250000);
+
+    chipUninit(pCHiP);
+}
+```
+
+
+---
+### chipRawReceiveNotification
+```int chipRawReceiveNotification(CHiP* pCHiP, uint8_t* pNotifyBuffer, size_t notifyBufferSize, size_t* pNotifyLength)```
+#### Description
+Get an out of band notification sent by the CHiP robot.
+
+#### Parameters
+* **pCHiP** is an object that was previously returned from the [chipInit()](#chipinit) call.
+* **pNotifyBuffer** is a pointer to the array of bytes into which the notification should be copied.
+* **notifyBufferSize** is the number of bytes in the pNotifyBuffer.
+* **pNotifyLength** is a pointer to where the actual number of bytes in the notification should be placed.  This value may be truncated to notifyBufferSize if the actual response was > notifyBufferSize.
+
+#### Returns
+* **CHIP_ERROR_NONE** on success.
+* **CHIP_ERROR_EMPTY** if there are currently no notifications to retrieve.
+* Non-zero CHIP_ERROR_* code otherwise.
+
+#### Notes
+* Sometimes the CHiP robot sends notifications which aren't in direct response to the last request made.  This function will return one of these responses/notifications.
+* _I don't currently know how to interpret these out of band notification events from the CHiP. If you figure them out, enter an Issue here on GitHub and let me know._
+
+#### Example
+```c
+#include <stdio.h>
+#include "chip.h"
+#include "osxble.h"
+
+
+int main(int argc, char *argv[])
+{
+    // Initialize the Core Bluetooth stack on this the main thread and start the worker robot thread to run the
+    // code found in robotMain() below.
+    osxCHiPInitAndRun();
+    return 0;
+}
+
+void robotMain(void)
+{
+    int     result = -1;
+    size_t  responseLength = 0;
+    uint8_t response[CHIP_RESPONSE_MAX_LEN];
+    CHiP*   pCHiP = chipInit(NULL);
+
+    printf("\tRawReceiveNotification.c - Use chipRawReceiveNotification() functions.\n"
+           "\tDisplay notifications as they arrive. Press CTRL+C to terminate.\n");
+
+    // Connect to first CHiP robot discovered.
+    result = chipConnectToRobot(pCHiP, NULL);
+
+    // Wait for first out of band notification to arrive.
+    while (1)
+    {
+        if (CHIP_ERROR_EMPTY != chipRawReceiveNotification(pCHiP, response, sizeof(response), &responseLength))
+        {
+            // Display notification contents.
+            printf("notification -> ");
+            for (int i = 0 ; i < responseLength ; i++)
+            {
+                printf("%02X", response[i]);
+            }
+            printf("\n");
+        }
+    }
+
+    chipUninit(pCHiP);
+}
+```

@@ -17,9 +17,12 @@
     chipRawReceive()
 */
 #include <stdio.h>
+#include <unistd.h>
 #include "chip.h"
 #include "osxble.h"
 
+#define CHIP_CMD_SET_EYE_BRIGHTNESS      0x48
+#define CHIP_CMD_GET_EYE_BRIGHTNESS      0x49
 
 int main(int argc, char *argv[])
 {
@@ -32,32 +35,40 @@ int main(int argc, char *argv[])
 void robotMain(void)
 {
     int     result = -1;
-    size_t  responseLength = 0;
-    uint8_t response[CHIP_RESPONSE_MAX_LEN];
     CHiP*   pCHiP = chipInit(NULL);
 
-    printf("\tRawSendReceive.c - Use chipRaw*() functions.\n"
-           "\tShould set chest LED to purple and display CHiP firmware revision\n");
+    printf("\tRawSendReceive.c - Use chipRaw*() functions to blink CHiP's eyes.\n");
 
     // Connect to first CHiP robot discovered.
     result = chipConnectToRobot(pCHiP, NULL);
 
-    // Send 4-byte CHiP command to set Chest LED to Purple.
-    static const uint8_t setChestPurple[] = "\x84\xFF\x01\xFF";
-    result = chipRawSend(pCHiP, setChestPurple, sizeof(setChestPurple)-1);
+    // Manually request the current eye brightness and restore to it later.
+    static const uint8_t getBrightness[1] = { CHIP_CMD_GET_EYE_BRIGHTNESS };
+    uint8_t              response[1+1];
+    size_t               responseLength;
 
-    // Request the CHiP firmware revision information and display it.
-    static const uint8_t getCHiPSoftwareVersion[] = "\x14";
-    result = chipRawReceive(pCHiP, getCHiPSoftwareVersion, sizeof(getCHiPSoftwareVersion)-1,
-                                 response, sizeof(response), &responseLength);
-    if (result == CHIP_ERROR_NONE && responseLength == 5 && response[0] == 0x14)
+    result = chipRawReceive(pCHiP, getBrightness, sizeof(getBrightness), response, sizeof(response), &responseLength);
+    uint8_t originalBrightness = response[1];
+    printf("Original brighness = %u\n", originalBrightness);
+
+    // Blink the eyes by dimming and brightening the eyes a few times.
+    uint8_t command[1+1];
+    command[0] = CHIP_CMD_SET_EYE_BRIGHTNESS;
+    for (int i = 0 ; i < 5 ; i++)
     {
-        printf("\tCHiP Software Version: %d-%d-%d (build #%d)\n",
-               response[1] + 2000,
-               response[2],
-               response[3],
-               response[4]);
+        command[1] = 0x40;
+        result = chipRawSend(pCHiP, command, sizeof(command));
+        usleep(250000);
+
+        command[1] = 0xFF;
+        result = chipRawSend(pCHiP, command, sizeof(command));
+        usleep(250000);
     }
+
+    // Restore the brightness to original setting (probably 0, default).
+    command[1] = originalBrightness;
+    result = chipRawSend(pCHiP, command, sizeof(command));
+    usleep(250000);
 
     chipUninit(pCHiP);
 }
