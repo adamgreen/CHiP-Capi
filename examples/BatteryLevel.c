@@ -34,7 +34,7 @@ void robotMain(void)
     int     result = -1;
     CHiP*   pCHiP = chipInit(NULL);
 
-    printf("\tGetBatteryLevel.c - Use chipGetBatteryLevel().\n");
+    printf("\tBatteryLevel.c - Use chipGetBatteryLevel().\n");
 
     // Connect to first CHiP robot discovered.
     result = chipConnectToRobot(pCHiP, NULL);

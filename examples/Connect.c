@@ -34,9 +34,7 @@ void robotMain(void)
     int   result = -1;
     CHiP* pCHiP = chipInit(NULL);
 
-    printf("\tConnect.c - Connect and disconnect from default CHiP.\n"
-           "\tShould see chest LED turn green on successful connection and\n"
-           "\tswitch back to blue shortly after once disconnected.\n");
+    printf("\tConnect.c - Connect and disconnect from default CHiP.\n");
 
     // Connect to default CHiP robot.
     result = chipConnectToRobot(pCHiP, NULL);

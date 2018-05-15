@@ -163,6 +163,80 @@ int chipAction(CHiP* pCHiP, CHiPAction action)
     return chipRawSend(pCHiP, command, sizeof(command));
 }
 
+int chipGetSpeed(CHiP* pCHiP, CHiPSpeed* pSpeed)
+{
+    static const uint8_t getSpeed[1] = { CHIP_CMD_GET_SPEED };
+    uint8_t              response[1+1];
+    size_t               responseLength;
+    int                  result;
+
+    assert( pCHiP );
+    assert( pSpeed );
+
+    result = chipRawReceive(pCHiP, getSpeed, sizeof(getSpeed), response, sizeof(response), &responseLength);
+    if (result)
+        return result;
+    if (responseLength != 2 ||
+        response[0] != CHIP_CMD_GET_SPEED ||
+        response[1] > CHIP_SPEED_KID)
+    {
+        return CHIP_ERROR_BAD_RESPONSE;
+    }
+
+    *pSpeed = response[1];
+
+    return CHIP_ERROR_NONE;
+}
+
+int chipSetSpeed(CHiP* pCHiP, CHiPSpeed speed)
+{
+    uint8_t command[1+1];
+
+    assert( pCHiP );
+    assert ( speed <= CHIP_SPEED_KID );
+
+    command[0] = CHIP_CMD_SET_SPEED;
+    command[1] = speed;
+
+    return chipRawSend(pCHiP, command, sizeof(command));
+}
+
+int chipGetEyeBrightness(CHiP* pCHiP, uint8_t* pBrightness)
+{
+    static const uint8_t getBrightness[1] = { CHIP_CMD_GET_EYE_BRIGHTNESS };
+    uint8_t              response[1+1];
+    size_t               responseLength;
+    int                  result;
+
+    assert( pCHiP );
+    assert( pBrightness );
+
+    result = chipRawReceive(pCHiP, getBrightness, sizeof(getBrightness), response, sizeof(response), &responseLength);
+    if (result)
+        return result;
+    if (responseLength != 2 ||
+        response[0] != CHIP_CMD_GET_EYE_BRIGHTNESS)
+    {
+        return CHIP_ERROR_BAD_RESPONSE;
+    }
+
+    *pBrightness = response[1];
+
+    return CHIP_ERROR_NONE;
+}
+
+int chipSetEyeBrightness(CHiP* pCHiP, uint8_t brightness)
+{
+    uint8_t command[1+1];
+
+    assert( pCHiP );
+
+    command[0] = CHIP_CMD_SET_EYE_BRIGHTNESS;
+    command[1] = brightness;
+
+    return chipRawSend(pCHiP, command, sizeof(command));
+}
+
 int chipPlaySound(CHiP* pCHiP, CHiPSoundIndex sound)
 {
     uint8_t command[1+2];
@@ -180,19 +254,6 @@ int chipPlaySound(CHiP* pCHiP, CHiPSoundIndex sound)
 int chipStopSound(CHiP* pCHiP)
 {
     return chipPlaySound(pCHiP, CHIP_SOUND_SHORT_MUTE_FOR_STOP);
-}
-
-int chipSetVolume(CHiP* pCHiP, uint8_t volume)
-{
-    uint8_t command[1+1];
-
-    assert( pCHiP );
-    assert( volume >= 1 && volume <= 11 );
-
-    command[0] = CHIP_CMD_SET_VOLUME;
-    command[1] = volume;
-
-    return chipRawSend(pCHiP, command, sizeof(command));
 }
 
 int chipGetVolume(CHiP* pCHiP, uint8_t* pVolume)
@@ -217,6 +278,19 @@ int chipGetVolume(CHiP* pCHiP, uint8_t* pVolume)
 
     *pVolume = response[1];
     return result;
+}
+
+int chipSetVolume(CHiP* pCHiP, uint8_t volume)
+{
+    uint8_t command[1+1];
+
+    assert( pCHiP );
+    assert( volume >= 1 && volume <= 11 );
+
+    command[0] = CHIP_CMD_SET_VOLUME;
+    command[1] = volume;
+
+    return chipRawSend(pCHiP, command, sizeof(command));
 }
 
 int chipGetBatteryLevel(CHiP* pCHiP, CHiPBatteryLevel* pBatteryLevel)
@@ -375,93 +449,6 @@ int chipCancelAlarm(CHiP* pCHiP)
     return chipRawSend(pCHiP, command, sizeof(command));
 }
 
-int chipGetSpeed(CHiP* pCHiP, CHiPSpeed* pSpeed)
-{
-    static const uint8_t getSpeed[1] = { CHIP_CMD_GET_SPEED };
-    uint8_t              response[1+1];
-    size_t               responseLength;
-    int                  result;
-
-    assert( pCHiP );
-    assert( pSpeed );
-
-    result = chipRawReceive(pCHiP, getSpeed, sizeof(getSpeed), response, sizeof(response), &responseLength);
-    if (result)
-        return result;
-    if (responseLength != 2 ||
-        response[0] != CHIP_CMD_GET_SPEED ||
-        response[1] > CHIP_SPEED_KID)
-    {
-        return CHIP_ERROR_BAD_RESPONSE;
-    }
-
-    *pSpeed = response[1];
-
-    return CHIP_ERROR_NONE;
-}
-
-int chipSetSpeed(CHiP* pCHiP, CHiPSpeed speed)
-{
-    uint8_t command[1+1];
-
-    assert( pCHiP );
-    assert ( speed <= CHIP_SPEED_KID );
-
-    command[0] = CHIP_CMD_SET_SPEED;
-    command[1] = speed;
-
-    return chipRawSend(pCHiP, command, sizeof(command));
-}
-
-int chipGetEyeBrightness(CHiP* pCHiP, uint8_t* pBrightness)
-{
-    static const uint8_t getBrightness[1] = { CHIP_CMD_GET_EYE_BRIGHTNESS };
-    uint8_t              response[1+1];
-    size_t               responseLength;
-    int                  result;
-
-    assert( pCHiP );
-    assert( pBrightness );
-
-    result = chipRawReceive(pCHiP, getBrightness, sizeof(getBrightness), response, sizeof(response), &responseLength);
-    if (result)
-        return result;
-    if (responseLength != 2 ||
-        response[0] != CHIP_CMD_GET_EYE_BRIGHTNESS)
-    {
-        return CHIP_ERROR_BAD_RESPONSE;
-    }
-
-    *pBrightness = response[1];
-
-    return CHIP_ERROR_NONE;
-}
-
-int chipSetEyeBrightness(CHiP* pCHiP, uint8_t brightness)
-{
-    uint8_t command[1+1];
-
-    assert( pCHiP );
-
-    command[0] = CHIP_CMD_SET_EYE_BRIGHTNESS;
-    command[1] = brightness;
-
-    return chipRawSend(pCHiP, command, sizeof(command));
-}
-
-int chipForceSleep(CHiP* pCHiP)
-{
-    uint8_t command[1+2];
-
-    assert( pCHiP );
-
-    command[0] = CHIP_CMD_FORCE_SLEEP;
-    command[1] = 0x12;
-    command[2] = 0x34;
-
-    return chipRawSend(pCHiP, command, sizeof(command));
-}
-
 int chipGetDogVersion(CHiP* pCHiP, CHiPDogVersion* pVersion)
 {
     static const uint8_t getDogVersion[1] = { CHIP_CMD_GET_DOG_VERSION };
@@ -491,6 +478,19 @@ int chipGetDogVersion(CHiP* pCHiP, CHiPDogVersion* pVersion)
     pVersion->nuvotonApromFirmware = response[9];
     pVersion->nuvoton = response[10];
     return result;
+}
+
+int chipForceSleep(CHiP* pCHiP)
+{
+    uint8_t command[1+2];
+
+    assert( pCHiP );
+
+    command[0] = CHIP_CMD_FORCE_SLEEP;
+    command[1] = 0x12;
+    command[2] = 0x34;
+
+    return chipRawSend(pCHiP, command, sizeof(command));
 }
 
 int chipRawSend(CHiP* pCHiP, const uint8_t* pRequest, size_t requestLength)

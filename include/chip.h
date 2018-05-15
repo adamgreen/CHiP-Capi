@@ -47,9 +47,7 @@ typedef enum CHiPChargingStatus
 
 typedef enum CHiPChargerType 
 {
-    // Charging via DC barrel jack port on chest.
     CHIP_CHARGER_TYPE_DC = 0x00,
-    // Charging on the base station (SmartBed).
     CHIP_CHARGER_TYPE_BASE  = 0x01
 } CHiPChargerType;
 
@@ -242,7 +240,6 @@ typedef struct CHiPDogVersion
 
 typedef struct CHiPBatteryLevel
 {
-    // Floating point value between 0.0 (depleted battery) and 1.0 (full battery).
     float              batteryLevel;
     CHiPChargingStatus chargingStatus;
     CHiPChargerType    chargerType;
@@ -290,28 +287,26 @@ int chipDrive(CHiP* pCHiP, int8_t forwardReverse, int8_t leftRight, int8_t spin)
 
 int chipAction(CHiP* pCHiP, CHiPAction action);
 
-int chipGetEyeBrightness(CHiP* pCHiP, uint8_t* pBrightness);
-int chipSetEyeBrightness(CHiP* pCHiP, uint8_t brightness);
-
-int chipSetVolume(CHiP* pCHiP, uint8_t volume);
-int chipGetVolume(CHiP* pCHiP, uint8_t* pVolume);
-int chipPlaySound(CHiP* pCHiP, CHiPSoundIndex sound);
-int chipStopSound(CHiP* pCHiP);
-
-int chipGetBatteryLevel(CHiP* pCHiP, CHiPBatteryLevel* pBatteryLevel);
-
 int chipGetSpeed(CHiP* pCHiP, CHiPSpeed* pSpeed);
 int chipSetSpeed(CHiP* pCHiP, CHiPSpeed speed);
 
-int chipGetDogVersion(CHiP* pCHiP, CHiPDogVersion* pVersion);
+int chipGetEyeBrightness(CHiP* pCHiP, uint8_t* pBrightness);
+int chipSetEyeBrightness(CHiP* pCHiP, uint8_t brightness);
 
-// Current & Alarm Date/Time are cleared on power cycle.
+int chipPlaySound(CHiP* pCHiP, CHiPSoundIndex sound);
+int chipStopSound(CHiP* pCHiP);
+int chipGetVolume(CHiP* pCHiP, uint8_t* pVolume);
+int chipSetVolume(CHiP* pCHiP, uint8_t volume);
+
+int chipGetBatteryLevel(CHiP* pCHiP, CHiPBatteryLevel* pBatteryLevel);
+
 int chipGetCurrentDateTime(CHiP* pCHiP, CHiPCurrentDateTime* pDateTime);
 int chipSetCurrentDateTime(CHiP* pCHiP, const CHiPCurrentDateTime* pDateTime);
-
 int chipGetAlarmDateTime(CHiP* pCHiP, CHiPAlarmDateTime* pDateTime);
 int chipSetAlarmDateTime(CHiP* pCHiP, const CHiPAlarmDateTime* pDateTime);
 int chipCancelAlarm(CHiP* pCHiP);
+
+int chipGetDogVersion(CHiP* pCHiP, CHiPDogVersion* pVersion);
 
 int chipForceSleep(CHiP* pCHiP);
 

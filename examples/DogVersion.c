@@ -34,7 +34,7 @@ void robotMain(void)
     CHiPDogVersion version;
     CHiP*          pCHiP = chipInit(NULL);
 
-    printf("\tGetDogVersion.c - Use chipGetDogVersion() function.\n");
+    printf("\tDogVersion.c - Use chipGetDogVersion() function.\n");
 
     // Connect to first CHiP robot discovered.
     result = chipConnectToRobot(pCHiP, NULL);
