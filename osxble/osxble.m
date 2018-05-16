@@ -509,7 +509,9 @@ Error:
     }
     else
     {
-        [manager scanForPeripheralsWithServices:[NSArray arrayWithObject:[CBUUID UUIDWithString:@CHIP_BROADCAST_SERVICE1]] options:nil];
+        [manager scanForPeripheralsWithServices:[NSArray arrayWithObjects:[CBUUID UUIDWithString:@CHIP_BROADCAST_SERVICE1], 
+                                                                          [CBUUID UUIDWithString:@CHIP_BROADCAST_SERVICE2], 
+                                                                          nil] options:nil];
     }
 }
 
