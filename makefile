@@ -32,7 +32,7 @@ DEPS := $(patsubst %.o,%.d,$(LIBCHIPCAPI_OSXBLE_OBJ))
 EXAMPLES := $(addprefix $(BINDIR)/,$(notdir $(basename $(wildcard examples/*.c))))
 EXAMPLES_OBJ := $(patsubst $(BINDIR)/%,$(OBJDIR)/examples/%.o,$(EXAMPLES))
 DEPS += $(patsubst %.o,%.d,$(EXAMPLES_OBJ))
-FRAMEWORKS := -framework Foundation -framework AppKit -framework CoreBluetooth
+FRAMEWORKS := -framework Foundation -framework AppKit -framework CoreBluetooth -lcurses
 
 # Rules
 .PHONY : clean all
