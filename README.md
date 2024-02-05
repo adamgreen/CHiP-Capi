@@ -1,4 +1,7 @@
 # CHiP C API
+## Archived - February 4th, 2024
+This project is no longer under active development.
+
 <img src="https://raw.githubusercontent.com/adamgreen/CHiP/master/images/20180507-01.jpg" alt="WowWee CHiP" width="320" height="240" />
 
 [WowWee](https://wowwee.com) supports a few different ways for you to take control of your [CHiP Robotic Dog](https://wowwee.com/CHiP):
@@ -407,7 +410,7 @@ Stops the process of discovering CHiP robots to which a connection can be made.
 * Non-zero CHIP_ERROR_* code otherwise.
 
 #### Notes
-* The discovery process is started with a call to [chipStartRobotDiscovery()](#chipstartrobotdiscovery) and stops when this function is called.  
+* The discovery process is started with a call to [chipStartRobotDiscovery()](#chipstartrobotdiscovery) and stops when this function is called.
 * CHiP robots which were found between these two calls can be listed through the use of the [chipGetDiscoveredRobotCount()](#chipgetdiscoveredrobotcount) and [chipGetDiscoveredRobotName()](#chipgetdiscoveredrobotname) functions.
 
 #### Example
@@ -553,7 +556,7 @@ void robotMain(void)
         usleep(50000);
     }
     usleep(500000);
-    
+
     chipUninit(pCHiP);
 }
 ```
@@ -629,7 +632,7 @@ void robotMain(void)
     printf("Lie Down!\n");
     result = chipAction(pCHiP, CHIP_ACTION_LIE_DOWN);
     sleep(2);
-    
+
     chipUninit(pCHiP);
 }
 ```
@@ -1380,7 +1383,7 @@ static void printBatteryLevel(const CHiPBatteryLevel* pBatteryLevel)
     // No need to print charger type if not charging so just return.
     if (pBatteryLevel->chargingStatus == CHIP_CHARGING_STATUS_NOT_CHARGING)
         return;
-        
+
     const char* pChargerType = "<invalid>";
     switch (pBatteryLevel->chargerType)
     {
@@ -1480,7 +1483,7 @@ void robotMain(void)
 static void printCurrentDateTime(const CHiPCurrentDateTime* pDateTime)
 {
     const char* daysOfWeek[] = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
-    
+
     printf("  %u-%02u-%02u (%s) %02u:%02u:%02u\n",
            pDateTime->year,
            pDateTime->month,
@@ -1578,7 +1581,7 @@ void robotMain(void)
 static void printCurrentDateTime(const CHiPCurrentDateTime* pDateTime)
 {
     const char* daysOfWeek[] = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
-    
+
     printf("  %u-%02u-%02u (%s) %02u:%02u:%02u\n",
            pDateTime->year,
            pDateTime->month,
@@ -1697,7 +1700,7 @@ void robotMain(void)
     result = chipGetAlarmDateTime(pCHiP, &alarm);
     printf("Updated CHiP Alarm for 2 minutes in the future\n");
     printAlarmDateTime(&alarm);
-    
+
     printf("The CHiP should start barking in about 2 minutes.\n");
     printf("Tap CHiP's head to turn alarm off.\n");
     sleep(120);
@@ -1823,7 +1826,7 @@ void robotMain(void)
     result = chipGetAlarmDateTime(pCHiP, &alarm);
     printf("Updated CHiP Alarm for 2 minutes in the future\n");
     printAlarmDateTime(&alarm);
-    
+
     printf("The CHiP should start barking in about 2 minutes.\n");
     printf("Tap CHiP's head to turn alarm off.\n");
     sleep(120);
@@ -1937,7 +1940,7 @@ void robotMain(void)
     result = chipGetAlarmDateTime(pCHiP, &alarm);
     printf("Updated CHiP Alarm for 2 minutes in the future\n");
     printAlarmDateTime(&alarm);
-    
+
     printf("The CHiP should start barking in about 2 minutes.\n");
     printf("Tap CHiP's head to turn alarm off.\n");
     sleep(120);
@@ -2084,7 +2087,7 @@ void robotMain(void)
 
     // Leave some time for command to make it through before disconnecting.
     sleep(2);
-    
+
     chipUninit(pCHiP);
 }
 ```
